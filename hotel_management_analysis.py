@@ -9,11 +9,19 @@ from statsmodels.tsa.arima_model import ARIMA  # Modified import
 from sklearn.preprocessing import LabelEncoder
 
 # Load data
+# Load data
 @st.cache
 def load_data():
     dtypes = {'Column6': str, 'Column7': str}  # Replace 'Column6' and 'Column7' with actual column names
-    df = pd.read_csv('D:\\bekar\\KHUSHI PROJECT\\data (2).csv', dtype=dtypes)
-    return df
+    # Specify the correct file path here
+    file_path = 'data (2).csv'
+    try:
+        df = pd.read_csv(file_path, dtype=dtypes)
+        return df
+    except FileNotFoundError:
+        st.error("The CSV file was not found at the specified location.")
+        return None
+
 
 # Preprocess data
 def preprocess_data(df):
