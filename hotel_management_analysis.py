@@ -1,6 +1,5 @@
 import pandas as pd
 import streamlit as st
-import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -9,10 +8,10 @@ from statsmodels.tsa.arima.model import ARIMA
 from sklearn.preprocessing import LabelEncoder
 
 # Load data
-@st.cache_data
+@st.cache
 def load_data():
     dtypes = {'Column6': str, 'Column7': str}  # Replace 'Column6' and 'Column7' with actual column names
-    df = pd.read_csv('D:\\bekar\\KHUSHI PROJECT\\data (2).csv', dtype={'Column6': str, 'Column7': str})
+    df = pd.read_csv('D:\\bekar\\KHUSHI PROJECT\\data (2).csv', dtype=dtypes)
     return df
 
 # Preprocess data
@@ -28,27 +27,26 @@ def visualize_data(df):
     st.subheader('Visualize Data')
     # Violin plot
     plt.figure(figsize=(12, 1.2 * len(df['Delivery_Type'].unique())))
+    df['Delivery_Type'] = df['Delivery_Type'].astype(str)  # Ensure 'Delivery_Type' is string type
     sns.violinplot(x='Total_Amount', y='Delivery_Type', data=df, inner='box', palette='Dark2', hue='Delivery_Type')  # Set hue='Delivery_Type'
     st.pyplot()
     # Bar plot
     st.subheader('Bar Plot')
-    df.groupby('Bill_Type').size().plot(kind='barh', color=sns.palettes.mpl_palette('Dark2'))
+    df.groupby('Bill_Type').size().plot(kind='barh', color=sns.color_palette('Dark2'))
     plt.gca().spines[['top', 'right']].set_visible(False)
     st.pyplot()
     # Time series plot
     st.subheader('Time Series Plot')
-    fig, ax = plt.subplots(figsize=(15, 8))
     df_sorted = df.sort_values('Date', ascending=True)
     for series_name, series in df_sorted.groupby('Bill_Type'):
-        ax.plot(series['Date'], series['Total_Amount'], label=series_name)
-    ax.legend(title='Bill_Type')
+        plt.plot(series['Date'], series['Total_Amount'], label=series_name)
+    plt.xlabel('Date')
+    plt.ylabel('Total Amount')
+    plt.legend(title='Bill_Type')
     st.pyplot()
     # 2D histogram
     st.subheader('2D Histogram')
-    df_2dhist = pd.DataFrame({
-        x_label: grp['Delivery_Type'].value_counts()
-        for x_label, grp in df.groupby('Bill_Type')
-    })
+    df_2dhist = pd.pivot_table(df, index='Bill_Type', columns='Delivery_Type', aggfunc='size', fill_value=0)
     sns.heatmap(df_2dhist, cmap='viridis')
     st.pyplot()
 
@@ -59,7 +57,7 @@ def arima_forecast(df):
     df['Date'] = pd.to_datetime(df['Date'])
     df.set_index('Date', inplace=True)
     # Aggregate total amount by month
-    monthly_total = df['Total_Amount'].resample('ME').sum()  # Change 'M' to 'ME'
+    monthly_total = df['Total_Amount'].resample('M').sum()  # Change 'ME' to 'M'
     # Split data into train and test sets
     train = monthly_total.iloc[:-2]
     test = monthly_total.iloc[-2:]
@@ -84,9 +82,8 @@ def arima_forecast(df):
 def analyze_food_bills(df):
     st.subheader('Analyze Food Bills')
     food_df = df[df['Bill_Type'] == 'Food Bills']
-    demand_2014_to_2023 = food_df.groupby('Item').size().sort_values(ascending=False)
-    st.write("Top 20 Most In-Demand Food Items (2014-2023)")
-    st.bar_chart(demand_2014_to_2023.head(20))
+    demand_2014_to_2023 = food_df['Item'].value_counts().head(20)
+    st.bar_chart(demand_2014_to_2023)
 
 # Train a RandomForestClassifier
 def train_random_forest(df):
@@ -112,10 +109,7 @@ def train_random_forest(df):
     st.write(classification_report(y_test, y_pred))
     # Plot confusion matrix
     conf_matrix = confusion_matrix(y_test, y_pred)
-    sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues", xticklabels=classifier.classes_,
-                yticklabels=classifier.classes_)
-    st.pyplot()
-
+    st.write(conf_matrix)
 
 # Main function
 def main():
@@ -126,7 +120,6 @@ def main():
     arima_forecast(df)
     analyze_food_bills(df)
     train_random_forest(df)
-
 
 if __name__ == '__main__':
     main()
