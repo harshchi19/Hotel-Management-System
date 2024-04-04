@@ -23,6 +23,7 @@ def load_data():
         return None
 
 
+
 # Preprocess data
 def preprocess_data(df):
     # Drop unnecessary columns
