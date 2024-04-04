@@ -1,10 +1,6 @@
-import matplotlib
-matplotlib.use('agg')  # Specify the 'agg' backend
-
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
-import seaborn as sns
+import plotly.express as px
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
@@ -30,29 +26,16 @@ def preprocess_data(df):
 def visualize_data(df):
     st.subheader('Visualize Data')
     # Violin plot
-    plt.figure(figsize=(12, 1.2 * len(df['Delivery_Type'].unique())))
-    df['Delivery_Type'] = df['Delivery_Type'].astype(str)  # Ensure 'Delivery_Type' is string type
-    sns.violinplot(x='Total_Amount', y='Delivery_Type', data=df, inner='box', palette='Dark2', hue='Delivery_Type')  # Set hue='Delivery_Type'
-    st.pyplot()
+    st.plotly_chart(px.violin(df, x='Total_Amount', y='Delivery_Type', color='Delivery_Type', box=True))
     # Bar plot
     st.subheader('Bar Plot')
-    df.groupby('Bill_Type').size().plot(kind='barh', color=sns.color_palette('Dark2'))
-    plt.gca().spines[['top', 'right']].set_visible(False)
-    st.pyplot()
+    st.plotly_chart(px.bar(df.groupby('Bill_Type').size().reset_index(), x='Bill_Type', y=0, color='Bill_Type'))
     # Time series plot
     st.subheader('Time Series Plot')
-    df_sorted = df.sort_values('Date', ascending=True)
-    for series_name, series in df_sorted.groupby('Bill_Type'):
-        plt.plot(series['Date'], series['Total_Amount'], label=series_name)
-    plt.xlabel('Date')
-    plt.ylabel('Total Amount')
-    plt.legend(title='Bill_Type')
-    st.pyplot()
+    st.plotly_chart(px.line(df.sort_values('Date'), x='Date', y='Total_Amount', color='Bill_Type'))
     # 2D histogram
     st.subheader('2D Histogram')
-    df_2dhist = pd.pivot_table(df, index='Bill_Type', columns='Delivery_Type', aggfunc='size', fill_value=0)
-    sns.heatmap(df_2dhist, cmap='viridis')
-    st.pyplot()
+    st.plotly_chart(px.histogram(df, x='Delivery_Type', y='Bill_Type', color='Bill_Type'))
 
 # ARIMA Forecasting
 def arima_forecast(df):
