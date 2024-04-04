@@ -11,18 +11,16 @@ from sklearn.preprocessing import LabelEncoder
 # Load data
 # Load data
 @st.cache
-@st.cache
 def load_data():
     dtypes = {'Column6': str, 'Column7': str}
     file_path = 'data (2).csv'  # Update this file path
+    print("Attempting to load data from:", file_path)  # Debugging statement
     try:
         df = pd.read_csv(file_path, dtype=dtypes)
         return df
     except FileNotFoundError:
         st.error("The CSV file was not found at the specified location.")
         return None
-
-
 
 # Preprocess data
 def preprocess_data(df):
