@@ -11,10 +11,10 @@ from sklearn.preprocessing import LabelEncoder
 # Load data
 # Load data
 @st.cache
+@st.cache
 def load_data():
-    dtypes = {'Column6': str, 'Column7': str}  # Replace 'Column6' and 'Column7' with actual column names
-    # Specify the correct file path here
-    file_path = 'data (2).csv'
+    dtypes = {'Column6': str, 'Column7': str}
+    file_path = 'data (2).csv'  # Update this file path
     try:
         df = pd.read_csv(file_path, dtype=dtypes)
         return df
