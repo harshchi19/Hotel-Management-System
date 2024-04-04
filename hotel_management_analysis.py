@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tsa.arima_model import ARIMA  # Modified import
 from sklearn.preprocessing import LabelEncoder
 
 # Load data
@@ -111,4 +111,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
